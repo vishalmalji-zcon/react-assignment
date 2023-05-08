@@ -22,6 +22,11 @@ import HomeIcon from '@mui/icons-material/Home';
 import InfoIcon from '@mui/icons-material/Info';
 import SettingsIcon from '@mui/icons-material/Settings';
 import InventoryIcon from '@mui/icons-material/Inventory';
+import { ExpandLess, ExpandMore, StarBorder } from '@mui/icons-material';
+import { Collapse } from '@mui/material';
+import { makeStyles } from '@mui/styles';
+
+import WorkOutlineSharpIcon from '@mui/icons-material/WorkOutlineSharp';
 
 
 const drawerWidth = 240;
@@ -75,26 +80,59 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
     }),
 );
 
+const useStyles = makeStyles({
+    list: {
+      width: 250
+    },
+    fullList: {
+      width: "auto"
+    },
+    paper: {
+      background: "blue"
+    }
+  });
+
+
+
 export default function SideNave() {
     const theme = useTheme();
     // const [open, setOpen] = React.useState(true);
     const navigate = useNavigate()
     const open = useAppStore((state) => state.dopen)
+    const openC = useAppStore((state) => state.cOpen)
+    const updateColOpen =  useAppStore((state)=> state.updateColOpen)
+    // const [openC, setOpenc] = React.useState(false)
+    const handleClick = (e) => {
+        updateColOpen(!openC)
+    }
 
-
-
+    const handleClickCollapse = (e) => {
+        console.log("------",openC)
+        updateColOpen(true)
+        console.log("------",openC)
+    }
+    
+    
+      const classes = useStyles();
     return (
-        <Box sx={{ display: 'flex' }}>
+        <Box sx={{ display: 'flex', backgroundColor:"blue" }}>
             <Box height={30} />
             <CssBaseline />
-            <Drawer variant="permanent" open={open}>
+            <Drawer   variant="permanent" open={open} PaperProps={{
+    sx: {
+      color: "rgba(255,255,255,1)",
+      backgroundColor: "rgba(27,26,71)" //27, 26, 71
+    }
+  }} >
                 <DrawerHeader>
                     <IconButton >
                         {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
                     </IconButton>
                 </DrawerHeader>
                 <Divider />
-                <List>
+                <List
+                aria-labelledby="nested-list-subheader"
+                >
                     <ListItem disablePadding sx={{ display: 'block' }} onClick={() => { navigate('/dashboard') }}>
                         <ListItemButton
                             sx={{
@@ -108,6 +146,7 @@ export default function SideNave() {
                                     minWidth: 0,
                                     mr: open ? 3 : 'auto',
                                     justifyContent: 'center',
+                                    color: "white"
                                 }}
                             >
                                 <HomeIcon />
@@ -128,6 +167,7 @@ export default function SideNave() {
                                     minWidth: 0,
                                     mr: open ? 3 : 'auto',
                                     justifyContent: 'center',
+                                    color: "white"
                                 }}
                             >
                                 <InfoIcon />
@@ -135,7 +175,8 @@ export default function SideNave() {
                             <ListItemText primary={"About"} sx={{ opacity: open ? 1 : 0 }} />
                         </ListItemButton>
                     </ListItem>
-                    {/* <ListItem disablePadding sx={{ display: 'block' }} onClick={() => { navigate('/settings') }}>
+                
+                    {/* <ListItem disablePadding sx={{ display: 'block' }} onClick={() => { navigate('/products') }}>
                         <ListItemButton
                             sx={{
                                 minHeight: 48,
@@ -148,32 +189,79 @@ export default function SideNave() {
                                     minWidth: 0,
                                     mr: open ? 3 : 'auto',
                                     justifyContent: 'center',
-                                }}
-                            >
-                                <SettingsIcon />
-                            </ListItemIcon>
-                            <ListItemText primary={"Settings"} sx={{ opacity: open ? 1 : 0 }} />
-                        </ListItemButton>
-                    </ListItem> */}
-                    <ListItem disablePadding sx={{ display: 'block' }} onClick={() => { navigate('/products') }}>
-                        <ListItemButton
-                            sx={{
-                                minHeight: 48,
-                                justifyContent: open ? 'initial' : 'center',
-                                px: 2.5,
-                            }}
-                        >
-                            <ListItemIcon
-                                sx={{
-                                    minWidth: 0,
-                                    mr: open ? 3 : 'auto',
-                                    justifyContent: 'center',
+                                    color: "white"
                                 }}
                             >
                                 <InventoryIcon />
                             </ListItemIcon>
                             <ListItemText primary={"Products"} sx={{ opacity: open ? 1 : 0 }} />
                         </ListItemButton>
+                    </ListItem> */}
+
+                    <ListItem disablePadding sx={{ display: 'block' }} onClick={handleClick}>
+                        <ListItemButton
+                            sx={{
+                                minHeight: 48,
+                                justifyContent: open ? 'initial' : 'center',
+                                px: 2.5,
+                            }}
+                        >
+                            <ListItemIcon
+                                sx={{
+                                    minWidth: 0,
+                                    mr: open ? 3 : 'auto',
+                                    justifyContent: 'center',
+                                    color: "white"
+                                }}
+                            >
+                                <WorkOutlineSharpIcon />
+                            </ListItemIcon>
+                            <ListItemText primary={"Projects/Jobs"} sx={{ opacity: open ? 1 : 0 }} />
+                            {openC ? <ExpandLess/>: <ExpandMore/>}
+                        </ListItemButton>
+                        <Collapse in={openC}>
+                            <List component="div" disablePadding>
+                                <ListItem  disablePadding sx={{ display: 'block' }} onClick={() => { navigate('/projects') }}>
+                                    <ListItemButton 
+                                     sx={{
+                                        minHeight: 25,
+                                        justifyContent: openC ? 'initial' : 'center',
+                                        px: 2.5,
+                                    }}>
+                                    <ListItemIcon>
+                                       
+                                    </ListItemIcon>
+                                    <ListItemText primary={"Projects"} sx={{ opacity: openC ? 1 : 0 }} />
+                                    </ListItemButton>
+                                </ListItem>
+                                <ListItem  disablePadding sx={{ display: 'block' }} onClick={() => { navigate('/about') }}>
+                                    <ListItemButton 
+                                     sx={{
+                                        minHeight: 48,
+                                        justifyContent: openC ? 'initial' : 'center',
+                                        px: 2.5,
+                                    }}>
+                                    <ListItemIcon>
+                                       
+                                    </ListItemIcon>
+                                    <ListItemText primary={"Jobs"} sx={{ opacity: openC ? 1 : 0 }} />
+                                    </ListItemButton>
+                                </ListItem>
+                                <ListItem  disablePadding sx={{ display: 'block' }} onClick={() => { navigate('/about') }}>
+                                    <ListItemButton 
+                                     sx={{
+                                        minHeight: 48,
+                                        justifyContent: openC ? 'initial' : 'center',
+                                        px: 2.5,
+                                    }}>
+                                    <ListItemIcon>
+                                       
+                                    </ListItemIcon>
+                                    <ListItemText primary={"Clients"} sx={{ opacity: openC ? 1 : 0 }} />
+                                    </ListItemButton>
+                                </ListItem>
+                            </List>
+                        </Collapse>
                     </ListItem>
                 </List>
             </Drawer>
