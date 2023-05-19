@@ -7,7 +7,7 @@ import SideNave from '../../components/SideNave';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 
-import { Button, Container, FormControl, FormHelperText, Grid, Input, InputLabel, NativeSelect, Paper, TextField } from '@mui/material';
+import { Button, Container, FormControl, FormHelperText, Grid, Input, InputAdornment, InputLabel, NativeSelect, Paper, TextField } from '@mui/material';
 import Swal from "sweetalert2";
 import { useDispatch, useSelector } from "react-redux";
 import { cleanProjectCreateState, updateProject, fetchProjects } from '../../reduxx/slices/projectslice';
@@ -95,13 +95,28 @@ updatedDate
         e.preventDefault();
         // Handle form submission here
         console.log(formData);
-        dispatch(updateProject(formData))
+        Swal.fire({
+            
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes",
+            cancelButtonText: "No"
+        }).then((result) => {
+            if (result.value) {
+                dispatch(updateProject(formData))
+            }
+        });
+        
         // Swal.fire("Project updated", "Your Project hass been updated successfully").then((res) => {if (res.value) navigate('/projects')})
     };
 
     useEffect(() => {
         if (projectUpdateSuccess) {
-            Swal.fire("Project added", "Your Project hass been updated successfully")
+            Swal.fire("Project Updated", "Your Project hass been updated successfully")
                 .then((res) => {
                     if (res.value) {
                         dispatch(fetchProjects())
@@ -172,7 +187,7 @@ updatedDate
                                 
                                 <NativeSelect
                                 name='clientName'
-                                value={formData.clientName}
+                                value={formData.clientName? formData.clientName : 0}
                                 onChange={handleChange}
 								// defaultValue={}
 								inputProps={{
@@ -199,6 +214,14 @@ updatedDate
                                     label="Project Cost"
                                     value={formData.projectCost}
                                     onChange={handleChange}
+                                    type='number'
+                                    InputProps={{
+                                        startAdornment:<InputAdornment position="start" >$</InputAdornment>,
+                                        onWheel: (event) => {
+                                            event.preventDefault();
+                                          }
+                                    }}
+                                
                                 />
                             </FormControl>
                             <FormControl fullWidth sx={{ mt: "5px", mb: "5px" }}>
@@ -208,7 +231,7 @@ updatedDate
                                 
                                 <NativeSelect
                                 name='projectManager'
-                                value={formData.projectManager}
+                                value={formData.projectManager ? formData.projectManager : 0}
                                 onChange={handleChange}
 								// defaultValue={Number(formData.projectManager)}
 								inputProps={{
@@ -235,6 +258,10 @@ updatedDate
                                     label="Rate Per Hour"
                                     value={formData.ratePerHour}
                                     onChange={handleChange}
+                                    type='number'
+                                    InputProps={{
+                                        startAdornment:<InputAdornment position="start" >$</InputAdornment>
+                                    }}
                                 />
                             </FormControl>
                             {/* <FormControl fullWidth sx={{ mt: "5px", mb: "5px" }}>

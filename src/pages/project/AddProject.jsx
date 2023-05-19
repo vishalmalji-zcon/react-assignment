@@ -4,12 +4,31 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import NavBar from '../../components/NavBar';
 import SideNave from '../../components/SideNave';
-import { Button, Container, FormControl, FormHelperText, Grid, Input, InputLabel, NativeSelect, Paper, TextField } from '@mui/material';
+import { Button, Container, FormControl, FormHelperText, Grid, Input, InputAdornment, InputLabel, NativeSelect, Paper, TextField } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import Swal from "sweetalert2";
 import { cleanProjectCreateState, createProject, fetchProjects } from '../../reduxx/slices/projectslice';
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from 'react';
+
+import * as yup from 'yup';
+
+const projectSchema = yup.object().shape({
+    projectName: yup.string().required("Project Name is required"),
+    clientName: yup.string(),
+    projectCost: yup.number()
+        // .transform((value) => (isNaN(value) || value === null || value === undefined) ? 0 : value)
+        .typeError('Project Cost must be a number')
+        .min(0, 'Project Cost should be a positive number')
+        .required("Project Cost Required"),
+    projectManager: yup.string(),
+    ratePerHour: yup.number()
+        .typeError('Rate Per Hour must be a number')
+        .min(0, 'Rate Per Hour should be a positive number')
+        .required("Rate Per Hour Required"),
+    projectUsers: yup.string(),
+    description: yup.string(),
+});
 
 
 
@@ -17,16 +36,20 @@ import { useEffect } from 'react';
 export default function AddProject() {
     const dispatch = useDispatch();
     const projectCreateSuccess = useSelector((state) => state.project.isProjectCreateFullfilled)
+    const projectCreateFailed = useSelector((state) => state.project.prjectCreatedError)
+    const data = useSelector((state) => state.project.data)
     const navigate = useNavigate()
     const [formData, setFormData] = useState({
         projectName: '',
         clientName: '',
-        projectCost: '',
+        projectCost: null,
         projectManager: '',
-        ratePerHour: '',
+        ratePerHour: null,
         projectUsers: '',
         description: ''
     });
+
+    const [errors, setErrors] = useState({});
 
     const clientsArray = [
         {
@@ -66,13 +89,29 @@ export default function AddProject() {
         }
     ]
 
-    const handleChange = (e) => {
+    const handleChange = async (e) => {
         const { name, value } = e.target;
         setFormData((prevData) => ({
             ...prevData,
             [name]: value
         }));
+
+        try {
+            await projectSchema.validateAt(name, { [name]: value });
+            setErrors((prevState) => ({
+                ...prevState,
+                [name]: undefined
+            }));
+        } catch (err) {
+            setErrors((prevState) => ({
+                ...prevState,
+                [name]: err.message
+            }));
+        }
+
     };
+
+
     useEffect(() => {
         if (projectCreateSuccess) {
             Swal.fire("Project added", "Your Project hass been added successfully")
@@ -84,8 +123,21 @@ export default function AddProject() {
                     }
                 })
         }
-      }, [projectCreateSuccess, dispatch]);
-    
+    }, [projectCreateSuccess, dispatch]);
+
+    useEffect(() => {
+        if (projectCreateFailed) {
+            Swal.fire("Error", "Error While creating project")
+                .then((res) => {
+                    if (res.value) {
+                        dispatch(fetchProjects())
+                        dispatch(cleanProjectCreateState())
+                        navigate('/projects');
+                    }
+                })
+        }
+    }, [projectCreateFailed, dispatch]);
+
     // {
     //     "projectName"
     //     "clientName"
@@ -104,15 +156,24 @@ export default function AddProject() {
     const handleSubmit = (e) => {
         e.preventDefault();
         // Handle form submission here
-        console.log(formData);
-        const createProjectObject = formData;
-        createProjectObject.isActive = true;
-        createProjectObject.isDeleted = false;
-        createProjectObject.createdDate = new Date();
-        createProjectObject.createdBy = "FE";
-        createProjectObject.updatedDate = new Date();
-        createProjectObject.updatedBy = "FE";
-        dispatch(createProject(formData))
+        console.log("create project",formData);
+        console.log("errors", errors)
+        projectSchema.validate(formData).then(()=>{
+            const createProjectObject = formData;
+            createProjectObject.isActive = true;
+            createProjectObject.isDeleted = false;
+            createProjectObject.createdDate = new Date();
+            createProjectObject.createdBy = "FE";
+            createProjectObject.updatedDate = new Date();
+            createProjectObject.updatedBy = "FE";
+            dispatch(createProject(formData))
+        }).catch((e)=>{
+            console.log("testt",e.errors)
+            alert(e.errors)
+        })
+        
+
+        // dispatch(createProject(formData))
     };
 
     const handleCancel = (e) => {
@@ -128,9 +189,6 @@ export default function AddProject() {
         navigate('/projects')
     }
 
-    const testMang = {
-        id: 1
-    }
     return (
         <>
             <NavBar />
@@ -164,6 +222,9 @@ export default function AddProject() {
                                     label="Project Name"
                                     value={formData.projectName}
                                     onChange={handleChange}
+                                    error={!!errors.projectName}
+                                    helperText={errors.projectName}
+                                    autoComplete='off'
                                 />
                             </FormControl>
                             <FormControl fullWidth sx={{ mt: "5px", mb: "5px" }}>
@@ -200,6 +261,14 @@ export default function AddProject() {
                                     label="Project Cost"
                                     value={formData.projectCost}
                                     onChange={handleChange}
+                                    type='number'
+                                    InputProps={{
+                                        startAdornment: <InputAdornment position="start">$</InputAdornment>
+                                    }}
+                                    error={!!errors.projectCost}
+                                    helperText={errors.projectCost}
+                                    autoComplete='off'
+
                                 />
                             </FormControl>
                             <FormControl fullWidth sx={{ mt: "5px", mb: "5px" }}>
@@ -236,6 +305,13 @@ export default function AddProject() {
                                     label="Rate Per Hour"
                                     value={formData.ratePerHour}
                                     onChange={handleChange}
+                                    type='number'
+                                    InputProps={{
+                                        startAdornment: <InputAdornment position="start" >$</InputAdornment>
+                                    }}
+                                    error={!!errors.ratePerHour}
+                                    helperText={errors.ratePerHour}
+                                    autoComplete='off'
                                 />
                             </FormControl>
                             {/* <FormControl fullWidth sx={{ mt: "5px", mb: "5px" }}>
@@ -257,6 +333,7 @@ export default function AddProject() {
                                     label="Project Users"
                                     value={formData.projectUsers}
                                     onChange={handleChange}
+                                    autoComplete='off'
                                 />
                             </FormControl>
                             <FormControl fullWidth sx={{ mt: "5px", mb: "5px" }}>
@@ -269,6 +346,7 @@ export default function AddProject() {
                                     label="Description"
                                     value={formData.description}
                                     onChange={handleChange}
+                                    autoComplete='off'
                                 />
                             </FormControl>
                             <Grid container spacing={1} mt={1} alignItems="center">

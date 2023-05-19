@@ -5,7 +5,7 @@ import Typography from '@mui/material/Typography';
 import NavBar from '../components/NavBar';
 import DataTable from 'react-data-table-component';
 import axios from 'axios';
-import { Autocomplete, Button, IconButton, TextField } from '@mui/material';
+import { Autocomplete, Button, CircularProgress, IconButton, TextField } from '@mui/material';
 import { Stack } from '@mui/system';
 import { useNavigate } from 'react-router-dom';
 import EditProject from './project/EditProject';
@@ -18,6 +18,11 @@ import ModeEditOutlineSharpIcon from '@mui/icons-material/ModeEditOutlineSharp';
 import { useDispatch, useSelector } from "react-redux";
 import { cleanProjectCreateState, deleteProject, fetchProjects } from '../reduxx/slices/projectslice';
 import Swal from 'sweetalert2';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircleCheck } from '@fortawesome/free-regular-svg-icons';
+import { faListCheck } from '@fortawesome/free-solid-svg-icons';
+
+
 
 
 const customeStyels = {
@@ -36,12 +41,14 @@ function ProjectTable(props) {
     // const state = useSelector((state) => state)
 
     const navigate = useNavigate()
-    const [search, setSearch] = useState([]);
+    const [search, setSearch] = useState(null);
     // const [projects, setProjects] = useState([]);
     const projects = useSelector(state => state.project.projects)
+    const projectFetchError = useSelector(state => state.project.isError)
+    const projectLoading = useSelector(state => state.project.isLoading)
     const deleteProjectSuccess = useSelector(state => state.project.isProjectDeleteFullfilled)
     const deleteProjectError =  useSelector(state => state.project.prjectdeleteError)
-    console.log("--------", projects)
+    console.log("-------- deleteProjectSuccess", deleteProjectSuccess)
     const [filteredProject, setFilteredProject] = useState([])
     console.log("---------", projects)
     const getProjectss = async () => {
@@ -72,7 +79,7 @@ function ProjectTable(props) {
 
     useEffect(() => {
         if (deleteProjectSuccess) {
-            Swal.fire("Project added", "Your Project hass been deleted successfully")
+            Swal.fire("Project Deleted", "Your Project hass been deleted successfully")
                 .then((res) => {
                     if (res.value) {
                         dispatch(fetchProjects())
@@ -82,6 +89,18 @@ function ProjectTable(props) {
                 })
         }
       }, [deleteProjectSuccess, dispatch]);
+      useEffect(() => {
+        if (deleteProjectError) {
+            Swal.fire("Error", "Error while deleting project")
+                .then((res) => {
+                    if (res.value) {
+                        dispatch(fetchProjects())
+                        dispatch(cleanProjectCreateState())
+                        navigate('/projects');
+                    }
+                })
+        }
+      }, [deleteProjectError, dispatch]);
 
     const columns = [
         {
@@ -101,16 +120,20 @@ function ProjectTable(props) {
             center : true
         },
         {
-            name: "status",
-            selector: row => <></>,
+            name: "Status",
+            cell: (row) => (<><FontAwesomeIcon icon={faCircleCheck} beatFade style={{color: "#2a9d31",}} /></>),
             sortable: true,
             wrap: true,
+            center: true
             
         },
         {
             name: "Jobs",
-            selector: row => row.name,
-            wrap: true
+            cell: row => (<>
+                            <FontAwesomeIcon icon={faListCheck} />
+                            </>),
+            wrap: true,
+            center: true
         },
         {
             name: "Actions",
@@ -134,10 +157,11 @@ function ProjectTable(props) {
     ];
 
 
-
+console.log("search", search)
 
     useEffect(() => {
         // getProjectss()
+        // setSearch("vishal")
         dispatch(fetchProjects())
     }, [dispatch]);
 
@@ -145,15 +169,18 @@ function ProjectTable(props) {
         setFilteredProject(projects)
     }, [projects])
     console.log("????????????????????/", filteredProject)
-    // useEffect(() => {
-    //     if(projects.length > 0){
-    //         const result = projects.filter(project => {
-    //             return project.name.toLowerCase().match(search.toLowerCase())
-    //         })
-    //         setFilteredProject(result)
-    //     }
+    useEffect(() => {
+        console.log("testtt",search)
+        if(search !== null){
+        if(projects.length > 0 ){
+            const result = projects.filter(project => {
+                return project.projectName.toLowerCase().match(search.toLowerCase())
+            })
+            setFilteredProject(result)
+        }
+    }
 
-    // }, [search]);
+    }, [search]);
     const searchInTable = (e) => {
         setSearch(e)
         const result = projects.filter(project => {
@@ -175,15 +202,21 @@ function ProjectTable(props) {
             <Box sx={{ display: 'flex' }}>
                 <SideNave />
                 <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-
+                
                     <Stack direction="row" justifyContent="space-between"
                         alignItems="center"
-                        spacing={2} ml={"10px"} mr={"10px"} mt={"20px"}>
-                        <h4>ProjectTable</h4>
-                        <Button sx={{ marginLeft: "800px", backgroundColor: "#6D3EB9" }} variant="contained" onClick={() => navigate('/addProject')}>+ Add Project</Button>
+                        spacing={2} ml={"10px"} mr={"10px"} mt={"20px"} mb={"-5px"}>
+                        <h2>Projects</h2>
+                        <Button sx={{ marginLeft: "800px", backgroundColor: "#6D3EB9", ":hover":{
+                            backgroundColor: "#591DB9"
+                        } }} variant="contained" onClick={() => navigate('/addProject')}>+ Add Project</Button>
                     </Stack>
-
+               
                     {/* {projects && <><h1>Hello</h1></>} */}
+                    {/* {projectLoading && <CircularProgress sx={{mt: "100px", ml:"100px", pl: "100px"}}/>} */}
+                    {projectFetchError && <>
+                    <TextField>There is An Error while fetching projects</TextField>
+                    </>}
                     {filteredProject && <><DataTable columns={columns}
                         data={filteredProject} pagination fixedHeader fixedHeaderScrollHeight='400px'
                         selectableRows selectableRowsHighlight highlightOnHover
@@ -192,14 +225,15 @@ function ProjectTable(props) {
                         customStyles={customeStyels}
 
                         subHeaderAlign='right'
-                    // subHeaderComponent={
-                    //     <input type={"text"}
-                    //         placeholder="Search here..."
-                    //         className='w-25 form-control'
-                    //         value={search}
-                    //         // onChange={(e) => { setSearch(e.target.value) }}
-                    //         onChange={(e) => { searchInTable(e.target.value) }}
-                    //     />}
+                    subHeaderComponent={
+                        <input type={"text"}
+                            placeholder="Search here..."
+                            className='w-25 form-control'
+                            value={search}
+                            onChange={(e) => { setSearch(e.target.value) }}
+                            // onChange={(e) => { searchInTable(e.target.value) }}
+                        />}
+                        paginationRowsPerPageOptions={[2,5,10]}
                     /></>}
 
 

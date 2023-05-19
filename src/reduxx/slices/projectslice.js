@@ -1,26 +1,34 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { createProjectService, deleteProjectService, getProjectsService, updateProjectService } from "../service/projectService";
 
 export const fetchProjects = createAsyncThunk('fetchProject', async () => {
     // const resposne = await axios.get('https://restcountries.com/v2/all');
-    const resposne = await axios.get('https://projectdetails.azurewebsites.net/api/Projects/List');
-
+    const resposne = await getProjectsService();
     return resposne.data
 })
 
 export const createProject = createAsyncThunk('createProject', async (requestBody) => {
-    const resposne = await axios.post('https://localhost:7245/api/Projects/Create', requestBody);
+    const resposne = await createProjectService(requestBody);
     return resposne.data
 })
 
 export const updateProject = createAsyncThunk('updateProject', async (requestBody) => {
-    const resposne = await axios.put(`https://localhost:7245/api/Projects/Update/By/Id`, requestBody,{params:{ id: requestBody.id}});
+    let paramsObj = {
+        params: { id: requestBody.id }
+    }
+    const resposne = await updateProjectService(requestBody, paramsObj)
+    // const resposne = await axios.put(`https://localhost:7245/api/Projects/Update/By/Id`, requestBody,{params:{ id: requestBody.id}});
     return resposne.data
 })
 export const deleteProject = createAsyncThunk('deleteProject', async (projectId) => {
-    const resposne = await axios.delete(`https://localhost:7245/api/Projects/Delete/By/Id`, {params:{
-        id: projectId
-    }});
+    let paramsObj = {
+        params: { id: projectId }
+    }
+    const resposne = await deleteProjectService(paramsObj)
+    // const resposne = await axios.delete(`https://localhost:7245/api/Projects/Delete/By/Id`, {params:{
+    //     id: projectId
+    // }});
     return resposne.data
 })
 
@@ -37,15 +45,19 @@ const projectSlice = createSlice({
         data: null,
         prjectCreatedError: false,
         isProjectUpdateFullfilled: false,
-        prjectupdateError : false,
+        prjectupdateError: false,
         isProjectDeleteFullfilled: false,
-        prjectdeleteError : false,
+        prjectdeleteError: false,
     },
     reducers: {
         cleanProjectCreateState(state) {
             state.isProjectCreateFullfilled = false
             state.isProjectUpdateFullfilled = false
             state.isProjectDeleteFullfilled = false
+            state.prjectdeleteError = false
+            state.prjectCreatedError = false
+            state.prjectupdateError = false
+            state.data = null
         }
     },
     extraReducers: (builder) => {
@@ -70,8 +82,9 @@ const projectSlice = createSlice({
             state.isProjectCreateFullfilled = true;
         })
         builder.addCase(createProject.rejected, (state, action) => {
-            console.log("error", action.payload)
+            console.log("error", action)
             state.prjectCreatedError = true
+            state.data = action.payload
         })
         builder.addCase(updateProject.pending, (state, action) => {
             state.isLoading = true;
@@ -102,6 +115,6 @@ const projectSlice = createSlice({
     }
 });
 
-export const {cleanProjectCreateState} = projectSlice.actions
+export const { cleanProjectCreateState } = projectSlice.actions
 
 export default projectSlice.reducer;

@@ -189,9 +189,9 @@ export default function NavBar() {
 
     return (
         <Box sx={{ flexGrow: 1 }}>
-            <AppBar position="fixed" enableColorOnDark color='inherit'>
+            <AppBar position="fixed" enableColorOnDark color='inherit' elevation={1}>
                 <Toolbar>
-                    {/* <IconButton
+                    <IconButton
                         size="large"
                         edge="start"
                         color="inherit"
@@ -200,17 +200,17 @@ export default function NavBar() {
                         onClick={() => updateOpen(!dopen)}
                     >
                         <MenuIcon />
-                    </IconButton> */}
+                    </IconButton>
                     <img src={zoho} alt="zohoLogo" style={{ height: '3rem' }} />
                     <Typography
                         variant="h6"
                         noWrap
                         component="div"
-                        sx={{ display: { xs: 'none', sm: 'block' } }}
+                        sx={{ display: { xs: 'none', sm: 'block', pl: 100} }}
                     >
                         ZOHO
                     </Typography>
-                    <Search >
+                    <Search sx={{marginLeft: "500px"}}>
                         <SearchIconWrapper>
                             <SearchIcon />
                         </SearchIconWrapper>

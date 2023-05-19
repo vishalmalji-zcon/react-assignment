@@ -101,6 +101,8 @@ export default function SideNave() {
     const open = useAppStore((state) => state.dopen)
     const openC = useAppStore((state) => state.cOpen)
     const updateColOpen =  useAppStore((state)=> state.updateColOpen)
+    const dopen = useAppStore((state) => state.dopen)
+
     // const [openC, setOpenc] = React.useState(false)
     const handleClick = (e) => {
         updateColOpen(!openC)
@@ -154,27 +156,7 @@ export default function SideNave() {
                             <ListItemText primary={"Home"} sx={{ opacity: open ? 1 : 0 }} />
                         </ListItemButton>
                     </ListItem>
-                    <ListItem disablePadding sx={{ display: 'block' }} onClick={() => { navigate('/about') }}>
-                        <ListItemButton
-                            sx={{
-                                minHeight: 48,
-                                justifyContent: open ? 'initial' : 'center',
-                                px: 2.5,
-                            }}
-                        >
-                            <ListItemIcon
-                                sx={{
-                                    minWidth: 0,
-                                    mr: open ? 3 : 'auto',
-                                    justifyContent: 'center',
-                                    color: "white"
-                                }}
-                            >
-                                <InfoIcon />
-                            </ListItemIcon>
-                            <ListItemText primary={"About"} sx={{ opacity: open ? 1 : 0 }} />
-                        </ListItemButton>
-                    </ListItem>
+                    
                 
                     {/* <ListItem disablePadding sx={{ display: 'block' }} onClick={() => { navigate('/products') }}>
                         <ListItemButton
@@ -217,9 +199,9 @@ export default function SideNave() {
                                 <WorkOutlineSharpIcon />
                             </ListItemIcon>
                             <ListItemText primary={"Projects/Jobs"} sx={{ opacity: open ? 1 : 0 }} />
-                            {openC ? <ExpandLess/>: <ExpandMore/>}
+                            {dopen && <>{openC ? <ExpandLess/>: <ExpandMore/>}</>}
                         </ListItemButton>
-                        <Collapse in={openC}>
+                        <Collapse in={openC && dopen}>
                             <List component="div" disablePadding>
                                 <ListItem  disablePadding sx={{ display: 'block' }} onClick={() => { navigate('/projects') }}>
                                     <ListItemButton 
@@ -262,6 +244,27 @@ export default function SideNave() {
                                 </ListItem>
                             </List>
                         </Collapse>
+                    </ListItem>
+                    <ListItem disablePadding sx={{ display: 'block' }} onClick={() => { navigate('/about') }}>
+                        <ListItemButton
+                            sx={{
+                                minHeight: 48,
+                                justifyContent: open ? 'initial' : 'center',
+                                px: 2.5,
+                            }}
+                        >
+                            <ListItemIcon
+                                sx={{
+                                    minWidth: 0,
+                                    mr: open ? 3 : 'auto',
+                                    justifyContent: 'center',
+                                    color: "white"
+                                }}
+                            >
+                                <InfoIcon />
+                            </ListItemIcon>
+                            <ListItemText primary={"About"} sx={{ opacity: open ? 1 : 0 }} />
+                        </ListItemButton>
                     </ListItem>
                 </List>
             </Drawer>
