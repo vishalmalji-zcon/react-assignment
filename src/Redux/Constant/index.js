@@ -1,0 +1,3 @@
+export const GET_COUNT = "GET_COUNT";
+export const GET_COUNT_SUCCESS = "GET_COUNT_SUCCESS";
+export const GET_COUNT_FAILURE = "GET_COUNT_FAILURE";

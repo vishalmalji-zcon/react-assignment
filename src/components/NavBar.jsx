@@ -18,6 +18,8 @@ import MoreIcon from '@mui/icons-material/MoreVert';
 import { useAppStore } from '../appStore';
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import { useNavigate } from 'react-router-dom';
+import { TextField } from '@mui/material';
+import zoho from '../Assets/zoho.png';
 
 const AppBar = styled(MuiAppBar, {
 })(({ theme }) => ({
@@ -187,7 +189,7 @@ export default function NavBar() {
 
     return (
         <Box sx={{ flexGrow: 1 }}>
-            <AppBar position="fixed" enableColorOnDark color='inherit'>
+            <AppBar position="fixed" enableColorOnDark color='inherit' elevation={1}>
                 <Toolbar>
                     <IconButton
                         size="large"
@@ -199,15 +201,16 @@ export default function NavBar() {
                     >
                         <MenuIcon />
                     </IconButton>
+                    <img src={zoho} alt="zohoLogo" style={{ height: '3rem' }} />
                     <Typography
                         variant="h6"
                         noWrap
                         component="div"
-                        sx={{ display: { xs: 'none', sm: 'block' } }}
+                        sx={{ display: { xs: 'none', sm: 'block', pl: 100} }}
                     >
-                        Product Management
+                        ZOHO
                     </Typography>
-                    {/* <Search>
+                    <Search sx={{marginLeft: "500px"}}>
                         <SearchIconWrapper>
                             <SearchIcon />
                         </SearchIconWrapper>
@@ -215,15 +218,26 @@ export default function NavBar() {
                             placeholder="Search…"
                             inputProps={{ 'aria-label': 'search' }}
                         />
-                    </Search> */}
+                    </Search>
+                    {/* <form className="d-flex" role="search">
+          <input className="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
+          <button className="btn btn-outline-success" type="submit">
+            Search
+          </button>
+        </form> */}
+        {/* <TextField
+      label="Search"
+      variant="outlined"
+      // Add any additional props or event handlers as needed
+    /> */}
                     <Box sx={{ flexGrow: 1 }} />
                     <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-                        <IconButton size="large" aria-label="show 4 new mails" color="inherit">
+                        {/* <IconButton size="large" aria-label="show 4 new mails" color="inherit">
                             <Badge badgeContent={5} color="error">
                                 <MailIcon />
                             </Badge>
-                        </IconButton>
-                        <IconButton
+                        </IconButton> */}
+                        {/* <IconButton
                             size="large"
                             aria-label="show 17 new notifications"
                             color="inherit"
@@ -242,7 +256,7 @@ export default function NavBar() {
                             color="inherit"
                         >
                             <AccountCircle />
-                        </IconButton>
+                        </IconButton> */}
                         <IconButton
                             size="large"
                             edge="end"
